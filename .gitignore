@@ -1,11 +1,23 @@
-# Gradle 관련
+HELP.md
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-# IntelliJ IDEA
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
@@ -14,15 +26,29 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
-# VS Code
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
 .vscode/
 
-# 운영 설정 파일 (민감 정보)
-application-prod.yml
-application-local.yml
+### Custom (추가 권장) ###
+# 로컬 설정 파일
+**/application-local.yml
+**/application-local.yaml
+**/application-dev.yml
+**/application-prod.yml
 
 # 로그 파일
 *.log
+logs/
 
-# 기타
+# MacOS
 .DS_Store
+
+# Windows
+Thumbs.db
