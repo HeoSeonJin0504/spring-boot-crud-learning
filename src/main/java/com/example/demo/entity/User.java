@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
-@EntityListeners(AuditingEntityListener.class)  // 🆕 Auditing 리스너 추가
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,19 +22,25 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
-    private String email;
+    @Column(nullable = false, length = 50)
+    private String name;
 
     @Column(nullable = false, length = 100)
     private String password;
 
-    @Column(nullable = false, length = 50)
-    private String name;
+    @Column(nullable = false, length = 10)
+    private String gender;  // "남성" 또는 "여성"
 
-    @CreatedDate  // 🆕 org.springframework.data.annotation 패키지
+    @Column(nullable = false, unique = true, length = 20)
+    private String phone;  // 전화번호 (유니크)
+
+    @Column(nullable = false, unique = true, length = 100)
+    private String email;  // 이메일 (유니크)
+
+    @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate  // 🆕 UpdatedDate 대신 LastModifiedDate 사용
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 }

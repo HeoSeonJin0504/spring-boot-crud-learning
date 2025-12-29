@@ -11,58 +11,77 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service  // 스프링이 관리하는 서비스 빈
-@RequiredArgsConstructor  // final 필드 생성자 자동 생성 (의존성 주입)
-@Transactional(readOnly = true)  // 기본적으로 읽기 전용 트랜잭션
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
 
-    // 모든 사용자 조회
     public List<UserResponseDto> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(UserResponseDto::new)  // Entity → DTO 변환
+                .map(UserResponseDto::new)
                 .collect(Collectors.toList());
     }
 
-    // ID로 사용자 조회
     public UserResponseDto getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
         return new UserResponseDto(user);
     }
 
-    // 사용자 생성
-    @Transactional  // 쓰기 작업은 별도 트랜잭션
+    @Transactional
     public UserResponseDto createUser(UserRequestDto requestDto) {
         // 이메일 중복 체크
         if (userRepository.existsByEmail(requestDto.getEmail())) {
             throw new RuntimeException("이미 존재하는 이메일입니다");
         }
 
+        // 🆕 전화번호 중복 체크
+        if (userRepository.existsByPhone(requestDto.getPhone())) {
+            throw new RuntimeException("이미 존재하는 전화번호입니다");
+        }
+
         // DTO → Entity 변환
         User user = new User();
-        user.setEmail(requestDto.getEmail());
-        user.setPassword(requestDto.getPassword());  // 실제로는 암호화 필요!
         user.setName(requestDto.getName());
+        user.setPassword(requestDto.getPassword());
+        user.setGender(requestDto.getGender());
+        user.setPhone(requestDto.getPhone());
+        user.setEmail(requestDto.getEmail());
 
         User savedUser = userRepository.save(user);
         return new UserResponseDto(savedUser);
     }
 
-    // 사용자 수정
     @Transactional
     public UserResponseDto updateUser(Long id, UserRequestDto requestDto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
+        // 수정 가능한 필드만 업데이트
         user.setName(requestDto.getName());
-        // 이메일, 비밀번호는 별도 API로 변경하는 것이 일반적
+        user.setGender(requestDto.getGender());
+
+        // 이메일 변경 시 중복 체크
+        if (!user.getEmail().equals(requestDto.getEmail())) {
+            if (userRepository.existsByEmail(requestDto.getEmail())) {
+                throw new RuntimeException("이미 존재하는 이메일입니다");
+            }
+            user.setEmail(requestDto.getEmail());
+        }
+
+        // 🆕 전화번호 변경 시 중복 체크
+        if (!user.getPhone().equals(requestDto.getPhone())) {
+            if (userRepository.existsByPhone(requestDto.getPhone())) {
+                throw new RuntimeException("이미 존재하는 전화번호입니다");
+            }
+            user.setPhone(requestDto.getPhone());
+        }
 
         return new UserResponseDto(user);
     }
 
-    // 사용자 삭제
     @Transactional
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
