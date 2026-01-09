@@ -24,28 +24,35 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public UserResponseDto getUserById(Long id) {
-        User user = userRepository.findById(id)
+    public UserResponseDto getUserById(Long userIndex) {
+        User user = userRepository.findById(userIndex)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
         return new UserResponseDto(user);
     }
 
     @Transactional
     public UserResponseDto createUser(UserRequestDto requestDto) {
-        // 이메일 중복 체크
-        if (userRepository.existsByEmail(requestDto.getEmail())) {
-            throw new RuntimeException("이미 존재하는 이메일입니다");
+        // userId 중복 체크
+        if (userRepository.existsByUserId(requestDto.getUserId())) {
+            throw new RuntimeException("이미 존재하는 아이디입니다");
         }
 
-        // 🆕 전화번호 중복 체크
+        // 전화번호 중복 체크
         if (userRepository.existsByPhone(requestDto.getPhone())) {
             throw new RuntimeException("이미 존재하는 전화번호입니다");
         }
 
-        // DTO → Entity 변환
+        // 이메일 중복 체크 (이메일이 제공된 경우만)
+        if (requestDto.getEmail() != null && !requestDto.getEmail().isEmpty()) {
+            if (userRepository.existsByEmail(requestDto.getEmail())) {
+                throw new RuntimeException("이미 존재하는 이메일입니다");
+            }
+        }
+
         User user = new User();
-        user.setName(requestDto.getName());
+        user.setUserId(requestDto.getUserId());
         user.setPassword(requestDto.getPassword());
+        user.setName(requestDto.getName());
         user.setGender(requestDto.getGender());
         user.setPhone(requestDto.getPhone());
         user.setEmail(requestDto.getEmail());
@@ -55,23 +62,14 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDto updateUser(Long id, UserRequestDto requestDto) {
-        User user = userRepository.findById(id)
+    public UserResponseDto updateUser(Long userIndex, UserRequestDto requestDto) {
+        User user = userRepository.findById(userIndex)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
-        // 수정 가능한 필드만 업데이트
         user.setName(requestDto.getName());
         user.setGender(requestDto.getGender());
 
-        // 이메일 변경 시 중복 체크
-        if (!user.getEmail().equals(requestDto.getEmail())) {
-            if (userRepository.existsByEmail(requestDto.getEmail())) {
-                throw new RuntimeException("이미 존재하는 이메일입니다");
-            }
-            user.setEmail(requestDto.getEmail());
-        }
-
-        // 🆕 전화번호 변경 시 중복 체크
+        // 전화번호 변경 시 중복 체크
         if (!user.getPhone().equals(requestDto.getPhone())) {
             if (userRepository.existsByPhone(requestDto.getPhone())) {
                 throw new RuntimeException("이미 존재하는 전화번호입니다");
@@ -79,14 +77,26 @@ public class UserService {
             user.setPhone(requestDto.getPhone());
         }
 
+        // 이메일 변경 시 중복 체크 (이메일이 있을 경우만)
+        if (requestDto.getEmail() != null && !requestDto.getEmail().isEmpty()) {
+            if (!requestDto.getEmail().equals(user.getEmail())) {
+                if (userRepository.existsByEmail(requestDto.getEmail())) {
+                    throw new RuntimeException("이미 존재하는 이메일입니다");
+                }
+                user.setEmail(requestDto.getEmail());
+            }
+        } else {
+            user.setEmail(null);
+        }
+
         return new UserResponseDto(user);
     }
 
     @Transactional
-    public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
+    public void deleteUser(Long userIndex) {
+        if (!userRepository.existsById(userIndex)) {
             throw new RuntimeException("사용자를 찾을 수 없습니다");
         }
-        userRepository.deleteById(id);
+        userRepository.deleteById(userIndex);
     }
 }

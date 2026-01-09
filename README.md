@@ -52,18 +52,19 @@ jwt:
 
 사용자 API
 - `GET /api/users` - 전체 사용자 조회
-- `GET /api/users/{id}` - 특정 사용자 조회
+- `GET /api/users/{userIndex}` - 특정 사용자 조회
 - `POST /api/users` - 사용자 생성
-- `PUT /api/users/{id}` - 사용자 수정
-- `DELETE /api/users/{id}` - 사용자 삭제
+- `PUT /api/users/{userIndex}` - 사용자 수정
+- `DELETE /api/users/{userIndex}` - 사용자 삭제
 
 ## 데이터베이스 스키마
 users
-- id (BIGINT, PK, AUTO_INCREMENT)
-- name (VARCHAR(50), NOT NULL)
+- user_index (BIGINT, PK, AUTO_INCREMENT) 
+- user_id (VARCHAR(50), UNIQUE, NOT NULL)
 - password (VARCHAR(100), NOT NULL)
+- name (VARCHAR(50), NOT NULL)
 - gender (VARCHAR(10), NOT NULL)
 - phone (VARCHAR(20), UNIQUE, NOT NULL)
-- email (VARCHAR(100), UNIQUE, NULL)
+- email (VARCHAR(100), UNIQUE, NULL) - 선택 사항
 - created_at (DATETIME, NOT NULL)
 - updated_at (DATETIME, NOT NULL)

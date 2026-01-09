@@ -6,10 +6,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor  // 모든 필드를 받는 생성자 자동 생성
+@AllArgsConstructor
 public class LoginResponseDto {
 
-    private String token;  // JWT 토큰
-    private String email;
+    private String token;
+    private String userId;
     private String name;
 }

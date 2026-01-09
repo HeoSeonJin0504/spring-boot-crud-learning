@@ -1,9 +1,6 @@
 package com.example.demo.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,13 +8,19 @@ import lombok.Setter;
 @Setter
 public class UserRequestDto {
 
-    @NotBlank(message = "이름은 필수입니다")
-    @Size(max = 50, message = "이름은 50자를 초과할 수 없습니다")
-    private String name;
+    @NotBlank(message = "아이디는 필수입니다")
+    @Size(min = 4, max = 50, message = "아이디는 4자 이상 50자 이하여야 합니다")
+    @Pattern(regexp = "^[a-zA-Z0-9_-]+$",
+            message = "아이디는 영문, 숫자, -, _ 만 사용 가능합니다")
+    private String userId;  // 로그인 아이디
 
     @NotBlank(message = "비밀번호는 필수입니다")
     @Size(min = 6, max = 100, message = "비밀번호는 6자 이상 100자 이하여야 합니다")
     private String password;
+
+    @NotBlank(message = "이름은 필수입니다")
+    @Size(max = 50, message = "이름은 50자를 초과할 수 없습니다")
+    private String name;
 
     @NotBlank(message = "성별은 필수입니다")
     @Pattern(regexp = "^(남성|여성)$", message = "성별은 '남성' 또는 '여성'이어야 합니다")

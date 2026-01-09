@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 @Setter
 public class UserResponseDto {
 
-    private Long id;
+    private Long userIndex;
+    private String userId;
     private String name;
     private String gender;
     private String phone;
@@ -18,15 +19,14 @@ public class UserResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // Entity → DTO 변환
     public UserResponseDto(User user) {
-        this.id = user.getId();
+        this.userIndex = user.getUserIndex();
+        this.userId = user.getUserId();
         this.name = user.getName();
         this.gender = user.getGender();
         this.phone = user.getPhone();
         this.email = user.getEmail();
         this.createdAt = user.getCreatedAt();
         this.updatedAt = user.getUpdatedAt();
-        // 비밀번호는 응답에서 제외!
     }
 }

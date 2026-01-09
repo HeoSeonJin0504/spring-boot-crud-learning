@@ -18,15 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;  // 비밀번호 암호화
-    private final JwtUtil jwtUtil;  // JWT 생성
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    // 회원가입
     @Transactional
     public UserResponseDto register(UserRequestDto requestDto) {
-        // 이메일 중복 체크
-        if (userRepository.existsByEmail(requestDto.getEmail())) {
-            throw new RuntimeException("이미 존재하는 이메일입니다");
+        // userId 중복 체크
+        if (userRepository.existsByUserId(requestDto.getUserId())) {
+            throw new RuntimeException("이미 존재하는 아이디입니다");
         }
 
         // 전화번호 중복 체크
@@ -34,13 +33,19 @@ public class AuthService {
             throw new RuntimeException("이미 존재하는 전화번호입니다");
         }
 
-        // 비밀번호 암호화
+        // 이메일 중복 체크 (이메일이 제공된 경우만)
+        if (requestDto.getEmail() != null && !requestDto.getEmail().isEmpty()) {
+            if (userRepository.existsByEmail(requestDto.getEmail())) {
+                throw new RuntimeException("이미 존재하는 이메일입니다");
+            }
+        }
+
         String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
 
-        // User 엔티티 생성
         User user = new User();
+        user.setUserId(requestDto.getUserId());
+        user.setPassword(encodedPassword);
         user.setName(requestDto.getName());
-        user.setPassword(encodedPassword);  // 암호화된 비밀번호 저장!
         user.setGender(requestDto.getGender());
         user.setPhone(requestDto.getPhone());
         user.setEmail(requestDto.getEmail());
@@ -49,20 +54,19 @@ public class AuthService {
         return new UserResponseDto(savedUser);
     }
 
-    // 로그인
     public LoginResponseDto login(LoginRequestDto requestDto) {
-        // 이메일로 사용자 찾기
-        User user = userRepository.findByEmail(requestDto.getEmail())
-                .orElseThrow(() -> new RuntimeException("이메일 또는 비밀번호가 일치하지 않습니다"));
+        // userId로 사용자 찾기
+        User user = userRepository.findByUserId(requestDto.getUserId())
+                .orElseThrow(() -> new RuntimeException("아이디 또는 비밀번호가 일치하지 않습니다"));
 
         // 비밀번호 검증
         if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-            throw new RuntimeException("이메일 또는 비밀번호가 일치하지 않습니다");
+            throw new RuntimeException("아이디 또는 비밀번호가 일치하지 않습니다");
         }
 
-        // JWT 토큰 생성
-        String token = jwtUtil.generateToken(user.getEmail());
+        // JWT 토큰 생성 (userId 기반)
+        String token = jwtUtil.generateToken(user.getUserId());
 
-        return new LoginResponseDto(token, user.getEmail(), user.getName());
+        return new LoginResponseDto(token, user.getUserId(), user.getName());
     }
 }
