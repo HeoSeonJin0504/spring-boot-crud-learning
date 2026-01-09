@@ -34,7 +34,7 @@ public class User {
     @Column(nullable = false, unique = true, length = 20)
     private String phone;  // 전화번호 (유니크)
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = true, unique = true, length = 100)
     private String email;  // 이메일 (유니크)
 
     @CreatedDate

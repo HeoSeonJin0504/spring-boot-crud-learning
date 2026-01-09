@@ -28,8 +28,7 @@ public class UserRequestDto {
             message = "전화번호 형식이 올바르지 않습니다 (예: 010-1234-5678)")
     private String phone;
 
-    @NotBlank(message = "이메일은 필수입니다")
     @Email(message = "올바른 이메일 형식이 아닙니다")
     @Size(max = 100, message = "이메일은 100자를 초과할 수 없습니다")
-    private String email;
+    private String email;  // 선택 사항
 }
