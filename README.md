@@ -65,6 +65,6 @@ users
 - name (VARCHAR(50), NOT NULL)
 - gender (VARCHAR(10), NOT NULL)
 - phone (VARCHAR(20), UNIQUE, NOT NULL)
-- email (VARCHAR(100), UNIQUE, NULL) - 선택 사항
+- email (VARCHAR(100), UNIQUE, NULL)
 - created_at (DATETIME, NOT NULL)
 - updated_at (DATETIME, NOT NULL)
