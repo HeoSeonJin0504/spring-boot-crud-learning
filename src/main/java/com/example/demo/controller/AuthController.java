@@ -1,18 +1,12 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.LoginRequestDto;
-import com.example.demo.dto.LoginResponseDto;
-import com.example.demo.dto.UserRequestDto;
-import com.example.demo.dto.UserResponseDto;
+import com.example.demo.dto.*;
 import com.example.demo.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -33,5 +27,19 @@ public class AuthController {
     public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto requestDto) {
         LoginResponseDto response = authService.login(requestDto);
         return ResponseEntity.ok(response);
+    }
+
+    // 🆕 POST /api/auth/refresh - 액세스 토큰 재발급
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenResponseDto> refresh(@Valid @RequestBody RefreshRequestDto requestDto) {
+        TokenResponseDto response = authService.refresh(requestDto);
+        return ResponseEntity.ok(response);
+    }
+
+    // 🆕 POST /api/auth/logout - 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestParam String userId) {
+        authService.logout(userId);
+        return ResponseEntity.noContent().build();
     }
 }

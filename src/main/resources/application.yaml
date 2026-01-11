@@ -1,7 +1,6 @@
 spring:
   application:
     name: demo
-
   profiles:
     active: local
 
@@ -12,11 +11,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        default_batch_fetch_size: 100
 
-server:
-  port: 8080
-
-logging:
-  level:
-    com.example.demo: debug
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver

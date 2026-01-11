@@ -16,29 +16,41 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration}")
-    private Long expiration;
+    @Value("${jwt.access-expiration}")  // 🆕 액세스 토큰 만료시간
+    private Long accessExpiration;
 
-    // SecretKey 생성
+    @Value("${jwt.refresh-expiration}")  // 🆕 리프레시 토큰 만료시간
+    private Long refreshExpiration;
+
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    // JWT 토큰 생성
-    public String generateToken(String email) {
+    // 🆕 액세스 토큰 생성 (15분)
+    public String generateAccessToken(String userId) {
+        return generateToken(userId, accessExpiration);
+    }
+
+    // 🆕 리프레시 토큰 생성 (7일)
+    public String generateRefreshToken(String userId) {
+        return generateToken(userId, refreshExpiration);
+    }
+
+    // 토큰 생성 (공통 로직)
+    private String generateToken(String userId, Long expiration) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(userId)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
 
-    // JWT에서 이메일 추출
-    public String getEmailFromToken(String token) {
+    // JWT에서 userId 추출
+    public String getUserIdFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
