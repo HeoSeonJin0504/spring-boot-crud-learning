@@ -30,6 +30,12 @@ public class UserService {
         return new UserResponseDto(user);
     }
 
+    public UserResponseDto getUserByUserId(String userId) {  // ✅ @Transactional 제거 (클래스 레벨의 readOnly 적용)
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+        return new UserResponseDto(user);
+    }
+
     @Transactional
     public UserResponseDto createUser(UserRequestDto requestDto) {
         // userId 중복 체크

@@ -13,10 +13,11 @@
 ## 📦 주요 기능
 - 사용자 CRUD (생성, 조회, 수정, 삭제)
 - 회원가입/로그인 (아이디+비밀번호 방식)
-- JWT 인증 (액세스 토큰 + 리프레시 토큰)
+- JWT 인증 (액세스 토큰 15분 + 리프레시 토큰 7일)
 - 비밀번호 암호화 (BCrypt)
 - 리프레시 토큰 DB 저장 및 액세스 토큰 재발급
 - 로그아웃 (리프레시 토큰 삭제)
+- JWT 인증 필터 (Authorization 헤더 검증)
 - JPA Auditing (자동 생성일/수정일 관리)
 
 ## ⚙️ 로컬 실행 방법
@@ -51,18 +52,25 @@ jwt:
 
 ## 📌 API 엔드포인트
 
-### 인증 API
+### 인증 API (공개 - 토큰 불필요)
 - `POST /api/auth/register` - 회원가입
 - `POST /api/auth/login` - 로그인 (액세스/리프레시 토큰 발급)
 - `POST /api/auth/refresh` - 액세스 토큰 재발급
-- `POST /api/auth/logout` - 로그아웃 (리프레시 토큰 삭제)
 
-### 사용자 API
+### 사용자 API (인증 필요 - Authorization 헤더 필수)
 - `GET /api/users` - 전체 사용자 조회
 - `GET /api/users/{userIndex}` - 특정 사용자 조회
+- `GET /api/users/me` - 현재 로그인한 사용자 정보 조회
 - `POST /api/users` - 사용자 생성
 - `PUT /api/users/{userIndex}` - 사용자 수정
 - `DELETE /api/users/{userIndex}` - 사용자 삭제
+- `POST /api/auth/logout` - 로그아웃 (리프레시 토큰 삭제)
+
+### API 인증 방법
+인증이 필요한 API 호출 시 헤더에 액세스 토큰 포함:
+```
+Authorization: Bearer {accessToken}
+```
 
 ## 데이터베이스 스키마
 
