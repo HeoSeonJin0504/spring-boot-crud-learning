@@ -21,10 +21,10 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_index")
-    private Long userIndex;  // 시스템 내부용 고유 번호
+    private Long userIndex;
 
     @Column(name = "user_id", nullable = false, unique = true, length = 50)
-    private String userId;  // 로그인 아이디
+    private String userId;
 
     @Column(nullable = false, length = 100)
     private String password;
@@ -39,7 +39,7 @@ public class User {
     private String phone;
 
     @Column(nullable = true, unique = true, length = 100)
-    private String email;  // 선택 사항
+    private String email;
 
     @CreatedDate
     @Column(updatable = false)
@@ -47,4 +47,13 @@ public class User {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    // 저장 전에 빈 문자열을 NULL로 변환
+    @PrePersist
+    @PreUpdate
+    private void convertEmptyStringToNull() {
+        if (email != null && email.trim().isEmpty()) {
+            email = null;
+        }
+    }
 }
