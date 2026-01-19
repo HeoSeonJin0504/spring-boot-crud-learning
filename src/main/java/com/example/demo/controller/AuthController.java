@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -38,7 +40,11 @@ public class AuthController {
 
     // 🆕 POST /api/auth/logout - 로그아웃
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestParam String userId) {
+    public ResponseEntity<Void> logout() {
+        // SecurityContext에서 현재 로그인한 userId 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = (String) authentication.getPrincipal();
+
         authService.logout(userId);
         return ResponseEntity.noContent().build();
     }

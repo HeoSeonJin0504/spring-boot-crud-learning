@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 
@@ -127,6 +129,14 @@ public class AuthService {
     // 🆕 로그아웃 (리프레시 토큰 삭제)
     @Transactional
     public void logout(String userId) {
+        // 🆕 본인 인증 체크
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserId = (String) authentication.getPrincipal();
+
+        if (!currentUserId.equals(userId)) {
+            throw new RuntimeException("본인만 로그아웃할 수 있습니다");
+        }
+
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 

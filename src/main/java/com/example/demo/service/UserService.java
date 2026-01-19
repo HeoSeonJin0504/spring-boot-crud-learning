@@ -5,6 +5,8 @@ import com.example.demo.dto.UserResponseDto;
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +32,7 @@ public class UserService {
         return new UserResponseDto(user);
     }
 
-    public UserResponseDto getUserByUserId(String userId) {  // ✅ @Transactional 제거 (클래스 레벨의 readOnly 적용)
+    public UserResponseDto getUserByUserId(String userId) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
         return new UserResponseDto(user);
@@ -69,6 +71,9 @@ public class UserService {
 
     @Transactional
     public UserResponseDto updateUser(Long userIndex, UserRequestDto requestDto) {
+        // 🆕 본인 인증 체크
+        validateUserOwnership(userIndex);
+
         User user = userRepository.findById(userIndex)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
@@ -100,9 +105,28 @@ public class UserService {
 
     @Transactional
     public void deleteUser(Long userIndex) {
+        // 🆕 본인 인증 체크
+        validateUserOwnership(userIndex);
+
         if (!userRepository.existsById(userIndex)) {
             throw new RuntimeException("사용자를 찾을 수 없습니다");
         }
         userRepository.deleteById(userIndex);
+    }
+
+    // 본인 인증 검증 메서드
+    private void validateUserOwnership(Long userIndex) {
+        // 1. SecurityContext에서 현재 로그인한 userId 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserId = (String) authentication.getPrincipal();
+
+        // 2. 수정/삭제 대상 사용자 조회
+        User targetUser = userRepository.findById(userIndex)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+
+        // 3. 본인이 아니면 예외 발생
+        if (!targetUser.getUserId().equals(currentUserId)) {
+            throw new RuntimeException("본인의 정보만 수정/삭제할 수 있습니다");
+        }
     }
 }
